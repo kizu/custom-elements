@@ -1,0 +1,19 @@
+{
+  "name": "@kizu/custom-elements",
+  "version": "0.0.1",
+  "description": "A collection of assorted experimental custom elements",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kizu/custom-elements.git"
+  },
+  "author": "Roman Komarov <kizmarh@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kizu/custom-elements/issues"
+  },
+  "homepage": "https://github.com/kizu/custom-elements#readme"
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Just testing stuff</title>
+    <meta name="color-scheme" content="light dark" />
+    <script type="module">// @ts-check
+      import { CloneContent, InputSource, InputValue } from './../src/index.js';
+      CloneContent.register();
+      InputSource.register();
+      InputValue.register();
+    </script>
+  </head>
+  <body>
+    <input-scope>
+      <input-value as="@value" to="input">
+        <input-source>
+          <input type="range" value="3" max="20" />
+        </input-source>
+        <input-source>
+          <input type="number" value="3" min="0" max="20" size="2" />
+        </input-source>
+      </input-value>
+
+      <input-value as="@count" to="clone-content">
+        <clone-content root="ol">
+          <ol>
+            <li>test1</li>
+            <li>test2</li>
+            <li>test3</li>
+          </ol>
+        </clone-content>
+      </input-value>
+    </input-scope>
+
+  </body>
+</html>
