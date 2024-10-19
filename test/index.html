@@ -32,5 +32,27 @@
       </input-value>
     </input-scope>
 
+    <style>
+      .test.nice {
+        background: lightgreen;
+      }
+    </style>
+
+    <input-source id="a">
+      <label><input type="checkbox" /> Checked</label>
+    </input-source>
+
+    <input-value from="#a" as=".nice" to=".test">
+      <div class="test">Hello!</div>
+    </input-value>
+
+    <input-source id="b">
+      <label><input type="checkbox" /> Checked</label>
+    </input-source>
+
+    <input-value from="#b" as=".nice" to=".test">
+      <div class="test">Hello!</div>
+    </input-value>
+
   </body>
 </html>

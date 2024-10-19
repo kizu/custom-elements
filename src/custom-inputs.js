@@ -8,9 +8,21 @@ const INPUT_UPDATE = 'input update';
 
 const updateInputSource = (/** @type {HTMLInputElement} */ element) => {
   const inputUpdateEvent = new CustomEvent(INPUT_UPDATE, { detail: element });
-  const value = element.max
-    ? Math.min(Number(element.max), Number(element.value))
-    : element.value;
+  let value = /** @type {unknown} */(element.value);
+  const type = element.getAttribute('type') || 'text';
+  if (type === 'number' || type === 'range') {
+    value = Number(value);
+  }
+  if (element.max) {
+    value = Math.min(Number(element.max), Number(value))
+  }
+  if (element.min) {
+    value = Math.max(Number(element.min), Number(value))
+  }
+  if (type === 'checkbox') {
+    value = element.checked;
+  }
+  console.log({element, value})
   inputMap.set(element, value);
   document.dispatchEvent(inputUpdateEvent);
 };
@@ -21,12 +33,15 @@ const matchesScope = ({ outputElement, inputElement, selector }) => {
   // If data-attribute, compare with its value.
   //
   const closestScope = outputElement.closest('input-scope');
+  const matchesSelector = (inputElement.matches(selector) || inputElement.closest('input-source').matches(selector));
   return closestScope
-    ? inputElement.closest('input-scope') === closestScope && inputElement.matches(selector)
-    : inputElement.matches(selector)
+    ? inputElement.closest('input-scope') === closestScope && matchesSelector
+    // TODO: Should we check against the input+closest input-source, or could
+    // we just get the closest element that matches the desired selector?
+    : matchesSelector;
 }
 
-const getInputValue = ({ outputElement, selector = '*', handler, signal }) => {
+const subscribeToUpdates = ({ outputElement, selector = '*', handler, signal }) => {
   let value;
   const handleUpdate = (newValue) => {
     if (newValue !== value) {
@@ -74,6 +89,8 @@ export class InputSource extends RegisterableMixin(
   AbortableMixin(HTMLElement),
   { defaultName: 'input-source' }
 ) {
+  // TODO: add a `from` attribute that would select what to treat as the source.
+  // TODO: add a `to` attribute that would allow selecting what to subscribe to.
   connectedCallback() {
     const input = this.querySelector('input');
     if (input) {
@@ -120,6 +137,13 @@ export class InputValue extends RegisterableMixin(
             output.setAttribute(as.substring(1), this.value || '');
           } else if (as.startsWith('--')) {
             output.style.setProperty(as, this.value || '');
+          } else if (as.startsWith('.')) {
+            const classNames = as.split('.').filter(v=>v).map(v=>v.trim());
+            if (this.value) {
+              output.classList.add(...classNames);
+            } else {
+              output.classList.remove(...classNames);
+            }
           }
         }
       }
@@ -138,9 +162,9 @@ export class InputValue extends RegisterableMixin(
       applyValue();
     };
 
-    getInputValue({
+    subscribeToUpdates({
       outputElement: this,
-      selector: newValue,
+      selector: this.getAttribute('from') || '*',
       handler,
       signal: this.controller.signal,
     });
