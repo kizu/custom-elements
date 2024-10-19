@@ -22,7 +22,6 @@ const updateInputSource = (/** @type {HTMLInputElement} */ element) => {
   if (type === 'checkbox') {
     value = element.checked;
   }
-  console.log({element, value})
   inputMap.set(element, value);
   document.dispatchEvent(inputUpdateEvent);
 };
@@ -144,7 +143,7 @@ export class InputValue extends RegisterableMixin(
           } else if (as === '@value' && 'value' in output) {
             output.value = this.value;
           } else if (as[0] === '@') {
-            output.setAttribute(as.substring(1), this.value || '');
+            output.setAttribute(as.substring(1), this.value ?? '');
           } else if (as.startsWith('--')) {
             output.style.setProperty(as, this.value || '');
           } else if (as.startsWith('.')) {

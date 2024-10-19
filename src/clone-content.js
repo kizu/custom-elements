@@ -12,7 +12,7 @@ export class CloneContent extends RegisterableMixin(
   originalRoot = /** @type {HTMLElement | null} */ (null)
 
   connectedCallback() {
-    console.log('clone-content connected!')
+    // console.log('clone-content connected!')
   }
 
   attributeChangedCallback(/** @type {typeof CloneContent.observedAttributes[number]} */name, oldValue, newValue) {
@@ -35,7 +35,8 @@ export class CloneContent extends RegisterableMixin(
     if (name === 'target') {
       // Clean up clones of the previous target?
     }
-    if (name === 'count' || name === 'target') {
+    if ((name === 'count' && newValue !== "") || name === 'target') {
+      console.log({name, newValue})
       const count = Math.max(0, Number(this.getAttribute('count')));
       const allItems = /** @type {NodeListOf<HTMLElement>} */ (getContent());
       let originals = [];
@@ -58,7 +59,7 @@ export class CloneContent extends RegisterableMixin(
         }
       }
       const targetOriginalsLength = Math.min(count, originals.length + this.stashed.length);
-      if (this.stashed && count > originals.length) {
+      if (this.stashed.length && count > originals.length) {
         const currentLength = originals.length;
         for (let i = currentLength; i < targetOriginalsLength; i++) {
           const el = this.stashed.shift();
