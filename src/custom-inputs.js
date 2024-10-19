@@ -106,7 +106,7 @@ export class InputValue extends RegisterableMixin(
   AbortableMixin(HTMLElement),
   { defaultName: 'input-value' }
 ) {
-  static observedAttributes = /** @type {const} */ (['from', 'to', 'as']);
+  static observedAttributes = /** @type {const} */ (['from', 'to', 'as', 'root']);
 
   value = undefined;
 
@@ -126,7 +126,17 @@ export class InputValue extends RegisterableMixin(
     const applyValue = () => {
       const to = this.getAttribute('to') || 'output';
       const as = this.getAttribute('as') || 'textContent';
-      const outputs = /** @type {HTMLElement[]} */ (to === 'self' ? [this] : [...this.querySelectorAll(to)]);
+      const root = this.getAttribute('root') || '*';
+      // TODO: make this bounded by scope?
+      const rootElement = this.matches(root) ? this : this.closest(root);
+      if (!rootElement) {
+        return;
+      }
+      const outputs = /** @type {HTMLElement[]} */ (
+        to === 'self'
+          ? [this]
+          : [...rootElement.querySelectorAll(to)]
+      );
       if (outputs.length) {
         for (const output of outputs) {
           if (as === 'textContent') {
@@ -149,7 +159,7 @@ export class InputValue extends RegisterableMixin(
       }
     }
 
-    if (name === 'to' || name === 'as') {
+    if (name === 'to' || name === 'as' || name === 'root') {
       applyValue();
       return;
     }

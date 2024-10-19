@@ -50,9 +50,10 @@
       <label><input type="checkbox" /> Checked</label>
     </input-source>
 
-    <input-value from="#b" as=".nice" to=".test">
-      <div class="test">Hello!</div>
-    </input-value>
+    <input-value from="#b" as=".nice" to=".test-outer" root="body"></input-value>
+
+    <div class="test test-outer">Hello 1!</div>
+    <div class="test test-outer">Hello 2!</div>
 
   </body>
 </html>
