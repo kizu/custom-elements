@@ -1,5 +1,9 @@
 # Changelog
 
+## 2024-10-20
+
+- Improve perf of node addition.
+
 ## 2024-10-19
 
 - Better handling of `value` (`min`, a bit of types, checkbox).

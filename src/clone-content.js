@@ -48,16 +48,9 @@ export class CloneContent extends RegisterableMixin(
           originals.push(el)
         }
       }
-      if (count < originals.length) {
-        for (let i = originals.length - 1; i >= count; i--) {
-          const el = originals[i];
-          this.stashed.unshift(el);
-          if (i === 0) {
-            this.originalRoot = el.parentElement;
-          }
-          el.remove();
-        }
-      }
+      // When we will need to add nodes, we will do it in bulk.
+      const fragmentToAdd = document.createDocumentFragment();
+      // Restoring the originals
       const targetOriginalsLength = Math.min(count, originals.length + this.stashed.length);
       if (this.stashed.length && count > originals.length) {
         const currentLength = originals.length;
@@ -66,14 +59,24 @@ export class CloneContent extends RegisterableMixin(
           if (!el) {
             continue;
           }
-          if (originals.length) {
-            originals[originals.length - 1].after(el)
-          } else {
-            this.originalRoot?.prepend(el);
-          }
+          fragmentToAdd.appendChild(el);
           originals.push(el);
         }
       }
+      // Adding the clones
+      const currentTotalLength = targetOriginalsLength + clones.length;
+      if (count > currentTotalLength) {
+        for (let i = currentTotalLength; i < count; i++) {
+          const newIndex = i + 1;
+          const el = clones[clones.length - 1] || originals[originals.length - 1];
+          const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
+          // TODO: change the id if present;
+          clone.dataset.clone = String(newIndex);
+          clones.push(clone);
+          fragmentToAdd.appendChild(clone);
+        }
+      }
+      // Removing the clones
       // Maybe TODO: instead of destroying clones, we could stash them
       // This could allow maintaining changes to them in the same way as for
       // the regular elements.
@@ -84,16 +87,23 @@ export class CloneContent extends RegisterableMixin(
           el?.remove();
         }
       }
-      const currentTotalLength = targetOriginalsLength + clones.length;
-      if (count > currentTotalLength) {
-        for (let i = currentTotalLength; i < count; i++) {
-          const newIndex = i + 1;
-          const el = clones[clones.length - 1] || originals[originals.length - 1];
-          const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
-          // TODO: change the id if present;
-          clone.dataset.clone = String(newIndex);
-          clones.push(clone);
-          el.after(clone);
+      // Stashing the originals
+      if (count < originals.length) {
+        for (let i = originals.length - 1; i >= count; i--) {
+          const el = originals[i];
+          this.stashed.unshift(el);
+          if (i === 0) {
+            this.originalRoot = el.parentElement;
+          }
+          el.remove();
+        }
+      }
+
+      if (fragmentToAdd.children.length) {
+        if (allItems.length) {
+          allItems[allItems.length - 1].after(fragmentToAdd)
+        } else {
+          this.originalRoot?.prepend(fragmentToAdd);
         }
       }
       return;
